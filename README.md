@@ -1,5 +1,5 @@
-##**Ecommerce With Golang Project By Akhil Sharma**
-**Code-Along video series on Youtube**
+
+**Code-Along**
 
 ```bash
 # You can start the project with below commands

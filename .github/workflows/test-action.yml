@@ -1,4 +1,4 @@
-name: test-action-javascript
+name: test-action-go
 on: push
 jobs:
   myJob:
@@ -10,5 +10,5 @@ jobs:
         with:
           dt-url:  "https://dt-api-test-action.staging.cryptosoft.com/api/v1/bom"
           api-key: 'npPRzyVPC59PSlVe52ZIBYIuhZhF2bBN '
-          project-name: "test-actioreact"
-          project-version: "1.21"
+          project-name: "test"
+          project-version: "1.234"

@@ -2,12 +2,11 @@ pipeline {
   agent any
   tools {
         dockerTool "docker"
-        nodejs "node"
     }
   stages {
     stage('Install SBOM tool') {
         steps {
-            sh 'npm install -g @cyclonedx/cdxgen'
+            sh 'docker --version'
         }
     }
     stage('Build') {

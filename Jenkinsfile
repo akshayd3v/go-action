@@ -12,7 +12,7 @@ pipeline {
         }
         }
     }
-    }
+    
 
               
     stage('Upload SBOM to Dependency-Track') {

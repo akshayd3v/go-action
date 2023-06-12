@@ -1,34 +1,20 @@
 pipeline {
     agent any
 
-    tools {
-        dockerTool "docker"
-    }
-       
     stages {
-        stage('Checkout') {
+        stage('Maven Install') {
             steps {
-                checkout scm
+                container('maven:3.5.0') {
+                    sh 'mvn clean install'
+                }
             }
         }
-       
-       
-
-        stage('Install SBOM tool') {
+           
+        stage('Generate SBOM') {
             steps {
                 sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'
             }
         }
-        
-        // stage('Generate SBOM') {
-        //     steps {
-        //         sh 'export FETCH_LICENSE=true && cdxgen -o bom.json'
-        //         script {
-        //             def sbom = readFile('bom.json')
-        //             echo "Generated SBOM:\n$sbom"
-        //         }
-        //     }
-        // }
               
         stage('Upload SBOM to Dependency-Track') {
             steps {

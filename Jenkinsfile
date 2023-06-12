@@ -4,15 +4,31 @@ pipeline {
     tools {
         dockerTool "docker"
     }
-    
+       
     stages {
-        stage('Build') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+       
+       
+
+        stage('Install SBOM tool') {
             steps {
                 sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'
+            }
         }
+        
+        stage('Generate SBOM') {
+            steps {
+                sh 'export FETCH_LICENSE=true && cdxgen -o bom.json'
+                script {
+                    def sbom = readFile('bom.json')
+                    echo "Generated SBOM:\n$sbom"
+                }
+            }
         }
-      
-
               
         stage('Upload SBOM to Dependency-Track') {
             steps {
@@ -31,4 +47,3 @@ pipeline {
         }
     }
 }
-

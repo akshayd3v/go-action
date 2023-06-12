@@ -31,8 +31,8 @@ pipeline {
 
                 // Start Docker daemon
                 script {
-                    sh 'sudo service docker start'  // Adjust this command based on your OS
-                    sh 'sudo systemctl status docker'  // Optional: Verify Docker daemon status
+                    sh 'su -c "service docker start"'  // Adjust this command based on your OS
+                    sh 'systemctl status docker'  // Optional: Verify Docker daemon status
                 }
             }
         }
@@ -49,4 +49,5 @@ pipeline {
         }
     }
 }
+
 

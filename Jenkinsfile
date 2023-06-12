@@ -1,11 +1,5 @@
 pipeline {
-  agent {
-    // Use the Jenkins Docker image as the agent
-    docker {
-      image 'jenkins/jenkins:latest'
-      args '-v /var/run/docker.sock:/var/run/docker.sock'
-    }
-  }
+  agent any
   
   stages {
     stage('Build') {

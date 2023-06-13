@@ -1,29 +1,29 @@
-
 pipeline {
     agent any
 
     tools {
         dockerTool 'docker'
     }
- stages {
-        stage('docker') {
+
+    stages {
+        stage('Check Docker Version') {
             steps {
-                  sh 'docker --version'
+                sh 'docker --version'
             }
         }
-    stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-       
+
         stage('Install Dependencies') {
             steps {
                 sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'
             }
         }
-       
+
         stage('Generate SBOM') {
             steps {
                 sh 'export FETCH_LICENSE=true && cdxgen -o bom.json'
@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         }
-              
+
         stage('Upload SBOM to Dependency-Track') {
             steps {
                 withCredentials([string(credentialsId: 'apikey', variable: 'X_API_KEY')]) {

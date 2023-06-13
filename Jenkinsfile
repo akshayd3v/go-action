@@ -29,7 +29,7 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                sh './cdxgen -r . -o bom.json'
+                sh 'cdxgen -r . -o bom.json'
             }
         }
 

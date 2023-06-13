@@ -18,10 +18,10 @@ pipeline {
             }
         }
 
-        stage('Download cdxgen Binary') {
+       stage('Download cdxgen Binary') {
             steps {
                 sh '''
-                wget https://github.com/CycloneDX/cdxgen/releases/download/v8.5.3/cdxgen_8.5.3_linux_amd64.tar.gz
+                curl -LO https://github.com/CycloneDX/cdxgen/releases/download/v8.5.3/cdxgen_8.5.3_linux_amd64.tar.gz
                 tar -xf cdxgen_8.5.3_linux_amd64.tar.gz
                 chmod +x cdxgen
                 '''

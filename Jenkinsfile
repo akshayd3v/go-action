@@ -18,6 +18,18 @@ pipeline {
             }
         }
 
+        stage('Check Docker Image Availability') {
+            steps {
+                script {
+                    try {
+                        sh 'docker pull ghcr.io/cyclonedx/cdxgen'
+                    } catch (Exception e) {
+                        error("Failed to pull the Docker image: ${e.getMessage()}")
+                    }
+                }
+            }
+        }
+        
         stage('Install Dependencies') {
             steps {
                 sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'

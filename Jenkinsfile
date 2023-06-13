@@ -29,7 +29,7 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                sh './cdxgen_8.5.3_linux_amd64 -r . -o bom.json'
+                sh './cdxgen -r . -o bom.json'
             }
         }
 

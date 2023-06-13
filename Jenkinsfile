@@ -1,32 +1,47 @@
+
 pipeline {
     agent any
 
-   stages {
+    tools {
+        dockerTool 'docker'
+    }
+
+    stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-        
        
-        
-        stage('Generate SBOM') {
+        stage('Install Dependencies') {
             steps {
-                // Install CDXGEN tool
-                sh 'npm install -g @cyclonedx/bom'
-                
-                // Generate SBOM using CDXGEN
-                sh 'cd go-action && cyclonedx-bom generate --input go.mod --output sbom.xml'
+                sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'
             }
         }
-        
-        stage('Publish SBOM') {
+       
+        stage('Generate SBOM') {
             steps {
-                // Publish the generated SBOM as an artifact
-                archiveArtifacts artifacts: 'your-go-repo/sbom.xml', fingerprint: true
-                
-                // Optionally, you can also publish the SBOM to a specific location or service
-                // e.g., upload it to a file server, publish it to a vulnerability management tool, etc.
+                sh 'export FETCH_LICENSE=true && cdxgen -o bom.json'
+                script {
+                    def sbom = readFile('bom.json')
+                    echo "Generated SBOM:\n$sbom"
+                }
+            }
+        }
+              
+        stage('Upload SBOM to Dependency-Track') {
+            steps {
+                withCredentials([string(credentialsId: 'apikey', variable: 'X_API_KEY')]) {
+                    sh """
+                    curl -k -X POST "https://dt-api-jenkins-test.staging.cryptosoft.com/api/v1/bom" \
+                    -H "Content-Type:multipart/form-data" \
+                    -H "X-Api-Key:${X_API_KEY}" \
+                    -F "autoCreate=true" \
+                    -F "projectName=testJenkins" \
+                    -F "projectVersion=1.24" \
+                    -F "bom=@bom.json"
+                    """
+                }
             }
         }
     }

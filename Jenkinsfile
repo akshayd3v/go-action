@@ -17,6 +17,12 @@ pipeline {
                 checkout scm
             }
         }
+         stage('Start and Enable Docker') {
+            steps {
+                sh 'sudo systemctl start docker'
+                sh 'sudo systemctl enable docker'
+            }
+        }
 
         stage('Install Dependencies') {
             steps {

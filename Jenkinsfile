@@ -1,55 +1,39 @@
 pipeline {
     agent any
-    tools {
-        dockerTool "docker"
-    }    
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone your Go repository
+                git 'https://github.com/akshayd3v/go-action.git'
+            }
+        }
+        
         stage('Build') {
             steps {
-                script {
-                    docker.image('ghcr.io/cyclonedx/cdxgen').inside {
-                        // Docker run command
-                        sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'
-                    }
-                }
+                // Build your Go project
+                sh 'cd go-action && go build'
+            }
+        }
+        
+        stage('Generate SBOM') {
+            steps {
+                // Install CDXGEN tool
+                sh 'npm install -g @cyclonedx/bom'
+                
+                // Generate SBOM using CDXGEN
+                sh 'cd go-action && cyclonedx-bom generate --input go.mod --output sbom.xml'
+            }
+        }
+        
+        stage('Publish SBOM') {
+            steps {
+                // Publish the generated SBOM as an artifact
+                archiveArtifacts artifacts: 'your-go-repo/sbom.xml', fingerprint: true
+                
+                // Optionally, you can also publish the SBOM to a specific location or service
+                // e.g., upload it to a file server, publish it to a vulnerability management tool, etc.
             }
         }
     }
 }
-// pipeline {
-//     agent any
-//     tools {
-//         dockerTool "docker"
-//     }    
-
-//     stages {
-//         stage('Setup') {
-//             steps {
-//                 // Check Docker version
-//                 sh 'docker --version'
-
-//                 // Start Docker daemon
-//                 script {
-//                     sh 'su -c "service docker start"'  // Adjust this command based on your OS
-//                     sh 'systemctl status docker'  // Optional: Verify Docker daemon status
-//                 }
-//             }
-//         }
-        
-//         stage('Build') {
-//             steps {
-//                 script {
-//                     docker.image('ghcr.io/cyclonedx/cdxgen').inside {
-//                         // Docker run command
-//                         sh 'docker run --rm -v /tmp:/tmp -v $(pwd):/app:rw -t ghcr.io/cyclonedx/cdxgen -r /app -o /app/bom.json'
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
-
-

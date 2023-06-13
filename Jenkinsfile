@@ -1,20 +1,14 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Clone Repository') {
+   stages {
+        stage('Checkout') {
             steps {
-                // Clone your Go repository
-                git 'https://github.com/akshayd3v/go-action.git'
+                checkout scm
             }
         }
         
-        stage('Build') {
-            steps {
-                // Build your Go project
-                sh 'cd go-action && go build'
-            }
-        }
+       
         
         stage('Generate SBOM') {
             steps {

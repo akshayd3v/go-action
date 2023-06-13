@@ -5,7 +5,12 @@ pipeline {
     tools {
         dockerTool 'docker'
     }
-
+ stages {
+        stage('docker') {
+            steps {
+                  sh 'docker --version'
+            }
+        }
     stages {
         stage('Checkout') {
             steps {

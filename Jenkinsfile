@@ -1,7 +1,7 @@
 pipeline {
     agent any
     
-     tools {
+      tools {
          dockerTool "docker"
      }   
 
@@ -18,24 +18,21 @@ pipeline {
             }
         }
 
-        stage('Download cdxgen Binary') {
-            steps {
-                sh '''
-                curl -LO https://github.com/CycloneDX/cdxgen/releases/download/v8.5.3/cdxgen_8.5.3_linux_amd64
-                chmod +x cdxgen_8.5.3_linux_amd64
-                '''
-            }
-        }
-        
         stage('Install Dependencies') {
             steps {
-                sh 'cdxgen -r . -o bom.json'
+                script {
+                    try {
+                        sh 'docker pull ghcr.io/cyclonedx/cdxgen:v8.5.3'
+                    } catch (Exception e) {
+                        error("Failed to pull the Docker image: ${e.getMessage()}")
+                    }
+                }
             }
         }
 
         stage('Generate SBOM') {
             steps {
-                sh 'export FETCH_LICENSE=true && ./cdxgen_8.5.3_linux_amd64 -o bom.json'
+                sh 'docker run --rm -v $(pwd):/app -w /app ghcr.io/cyclonedx/cdxgen:v8.5.3 -r . -o bom.json'
                 script {
                     def sbom = readFile('bom.json')
                     echo "Generated SBOM:\n$sbom"

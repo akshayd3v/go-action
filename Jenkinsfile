@@ -61,7 +61,7 @@ pipeline {
         }
         stage('DT-check') {
             steps {
-                dependencyCheck additionalArguments: '--format HTML', odcInstallation: 'dependency-check'
+                dependencyCheck additionalArguments: '--format JSON', odcInstallation: 'dependency-check'
             }
         }
         stage('Upload SBOM to Dependency-Track') {
@@ -72,9 +72,9 @@ pipeline {
                     -H "Content-Type:multipart/form-data" \
                     -H "X-Api-Key:${X_API_KEY}" \
                     -F "autoCreate=true" \
-                    -F "projectName=testJenkins" \
+                    -F "projectName=Jenkins" \
                     -F "projectVersion=1.24" \
-                    -F "bom=/home/jenkins/agent/workspace/all/./dependency-check-report.html"
+                    -F "bom=/home/jenkins/agent/workspace/all/./dependency-check-report.json"
                     """
                 }
             }

@@ -50,4 +50,10 @@ pipeline {
                     -F "autoCreate=true" \
                     -F "projectName=testJenkins" \
                     -F "projectVersion=1.24" \
-                    -F "bom=@bom.json
+                    -F "bom=@bom.json"
+                    """
+                }
+            }
+        }
+    }
+}

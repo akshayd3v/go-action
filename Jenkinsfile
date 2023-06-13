@@ -60,22 +60,18 @@ pipeline{
          
         }
         stage('Upload SBOM to Dependency-Track') {
-            steps {
-                withCredentials([string(credentialsId: 'apikey', variable: 'X_API_KEY')]) {
-                    sh """
-                    curl -k -X POST "https://dt-api-jenkins-test.staging.cryptosoft.com/api/v1/bom" \
-                    -H "Content-Type:multipart/form-data" \
-                    -H "X-Api-Key:${X_API_KEY}" \
-                    -F "autoCreate=true" \
-                    -F "projectName=testJenkins" \
-                    -F "projectVersion=1.24" \
-                    -F "bom=@bom.json"
-                    """
-                }
+          sh """
+          curl -k -X POST "https://dt-api-jenkins-test.staging.cryptosoft.com/api/v1/bom" \
+          -H "Content-Type:multipart/form-data" \
+          -H "X-Api-Key:sdIH6vUsngEE9ENDRygz805LRDrqiB3H" \
+          -F "autoCreate=true" \
+          -F "projectName=testJenkins" \
+          -F "projectVersion=1.24" \
+          -F "bom=@bom.json"
+          """
+            }
             }
         }
-    }
-}
 
 
 

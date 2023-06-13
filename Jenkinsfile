@@ -62,6 +62,10 @@ pipeline {
         stage('DT-check') {
             steps {
                 dependencyCheck additionalArguments: '--format JSON', odcInstallation: 'dependency-check'
+                script {
+                    def sbom = readFile('/home/jenkins/agent/workspace/all/./dependency-check-report.json')
+                    echo "Generated SBOM:\n$sbom"
+                }
             }
         }
         stage('Upload SBOM to Dependency-Track') {

@@ -3,6 +3,7 @@ pipeline {
 
     tools {
         go 'go'
+        nodejs 'node'
     }
   
 

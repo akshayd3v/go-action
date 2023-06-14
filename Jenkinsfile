@@ -1,10 +1,9 @@
-
 pipeline {
     agent any
-    
-     tools {
-         dockerTool "docker"
-     }   
+
+    tools {
+        dockerTool 'docker'
+    }
 
     stages {
         stage('Check Docker Version') {
@@ -19,7 +18,6 @@ pipeline {
             }
         }
 
-     
         stage('Download sbom-tool') {
             steps {
                 sh 'curl -Lo sbom-tool https://github.com/microsoft/sbom-tool/releases/latest/download/sbom-tool-linux-x64'

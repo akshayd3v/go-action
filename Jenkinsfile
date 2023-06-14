@@ -1,9 +1,7 @@
 pipeline {
     agent any
-
+    
     stages {
-        
-
         stage('Checkout') {
             steps {
                 checkout scm
@@ -12,12 +10,13 @@ pipeline {
 
         stage('Install syft') {
             steps {
-                 sh 'curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh'
+                sh 'curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b $HOME/bin v0.83.0'
             }
         }
 
         stage('Generate SBOM') {
             steps {
+                sh 'syft version'
                 sh 'syft -o bom.json'
                 script {
                     def sbom = readFile('bom.json')

@@ -109,6 +109,7 @@ pipeline {
                 sh 'syft -o sbom.json'
             }
             }
+        }
     }
 }
 

@@ -50,6 +50,42 @@
 //     }
 // }
 
+// pipeline {
+//     agent any
+       
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+//         stage('DT-check') {
+//             steps {
+//                 dependencyCheck additionalArguments: '--format JSON', odcInstallation: 'dependency-check'
+//                 script {
+//                     def sbom = readFile('/home/jenkins/agent/workspace/all/./dependency-check-report.json')
+//                     echo "Generated SBOM:\n$sbom"
+//                 }
+//             }
+//         }
+//         stage('Upload SBOM to Dependency-Track') {
+//             steps {
+//                 withCredentials([string(credentialsId: 'apikey', variable: 'X_API_KEY')]) {
+//                     sh """
+//                     curl -k -X POST "https://dt-api-jenkins-test.staging.cryptosoft.com/api/v1/bom" \
+//                     -H "Content-Type:multipart/form-data" \
+//                     -H "X-Api-Key:${X_API_KEY}" \
+//                     -F "autoCreate=true" \
+//                     -F "projectName=Jenkins" \
+//                     -F "projectVersion=1.24" \
+//                     -F "bom=/home/jenkins/agent/workspace/all/./dependency-check-report.json"
+//                     """
+//                 }
+//             }
+//         }
+//     }
+// }
+
 pipeline {
     agent any
        
@@ -59,32 +95,22 @@ pipeline {
                 checkout scm
             }
         }
-        stage('DT-check') {
+        stage('Install Syft') {
             steps {
-                dependencyCheck additionalArguments: '--format JSON', odcInstallation: 'dependency-check'
-                script {
-                    def sbom = readFile('/home/jenkins/agent/workspace/all/./dependency-check-report.json')
-                    echo "Generated SBOM:\n$sbom"
-                }
+                sh 'curl -LO https://github.com/anchore/syft/releases/latest/download/syft_linux_amd64'
+                sh 'chmod +x syft_linux_amd64'
+                sh 'sudo mv syft_linux_amd64 /usr/local/bin/syft'
             }
-        }
-        stage('Upload SBOM to Dependency-Track') {
+            }
+        stage('Create SBOM') {
             steps {
-                withCredentials([string(credentialsId: 'apikey', variable: 'X_API_KEY')]) {
-                    sh """
-                    curl -k -X POST "https://dt-api-jenkins-test.staging.cryptosoft.com/api/v1/bom" \
-                    -H "Content-Type:multipart/form-data" \
-                    -H "X-Api-Key:${X_API_KEY}" \
-                    -F "autoCreate=true" \
-                    -F "projectName=Jenkins" \
-                    -F "projectVersion=1.24" \
-                    -F "bom=/home/jenkins/agent/workspace/all/./dependency-check-report.json"
-                    """
-                }
+                sh 'syft -o sbom.json /usr/local/bin/syft'
             }
-        }
+            }
     }
 }
+
+
 
 
 

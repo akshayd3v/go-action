@@ -16,11 +16,11 @@ pipeline {
 
         stage('Generate SBOM') {
             steps {
-               
-                sh '$HOME/bin/syft -o bom.json'
+                sh '$HOME/bin/syft version'
+                sh '$HOME/bin/syft packages alpine:latest -o cyclonedx.json'
                 script {
-                    def sbom = readFile('bom.json')
-                    echo "Generated SBOM:\n$sbom"
+                    def sbom = readFile('cyclonedx.json')
+                    echo "Generated CycloneDX SBOM:\n$sbom"
                 }
             }
         }
@@ -35,7 +35,7 @@ pipeline {
                     -F "autoCreate=true" \
                     -F "projectName=testJenkins" \
                     -F "projectVersion=1.24" \
-                    -F "bom=@bom.json"
+                    -F "bom=@cyclonedx.json"
                     """
                 }
             }

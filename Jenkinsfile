@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        dockerTool 'docker'
-    }
-
     stages {
         stage('Check Docker Version') {
             steps {
@@ -18,16 +14,15 @@ pipeline {
             }
         }
 
-        stage('Download sbom-tool') {
+        stage('Install syft') {
             steps {
-                sh 'curl -Lo sbom-tool https://github.com/microsoft/sbom-tool/releases/latest/download/sbom-tool-linux-x64'
-                sh 'chmod +x sbom-tool'
+                sh 'curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin'
             }
         }
 
         stage('Generate SBOM') {
             steps {
-                sh './sbom-tool generate -o bom.json --configuration System.Globalization.Invariant=true'
+                sh 'syft -o bom.json'
                 script {
                     def sbom = readFile('bom.json')
                     echo "Generated SBOM:\n$sbom"

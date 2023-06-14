@@ -12,7 +12,11 @@ pipeline {
                 checkout scm
             }
         }
-       
+        stage('Install Dependencies') {
+            steps {
+                sh 'go mod why'
+            }
+        }
         
         stage('Install SBOM tool') {
             steps {

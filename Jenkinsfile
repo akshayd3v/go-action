@@ -19,25 +19,17 @@ pipeline {
             }
         }
 
-        stage('Download cdxgen Binary') {
+       stages {
+        stage('Download sbom-tool') {
             steps {
-                sh '''
-                curl -LO https://github.com/CycloneDX/cdxgen/releases/download/v8.5.3/cdxgen_8.5.3_linux_amd64.tar.gz
-                tar -xf cdxgen_8.5.3_linux_amd64.tar.gz
-                chmod +x cdxgen
-                '''
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                sh './cdxgen -r . -o bom.json'
+                sh 'curl -Lo sbom-tool https://github.com/microsoft/sbom-tool/releases/latest/download/sbom-tool-linux-x64'
+                sh 'chmod +x sbom-tool'
             }
         }
 
         stage('Generate SBOM') {
             steps {
-                sh 'export FETCH_LICENSE=true && ./cdxgen -o bom.json'
+                sh './sbom-tool generate -o bom.json'
                 script {
                     def sbom = readFile('bom.json')
                     echo "Generated SBOM:\n$sbom"

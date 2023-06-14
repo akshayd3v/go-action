@@ -27,7 +27,7 @@ pipeline {
 
         stage('Generate SBOM') {
             steps {
-                sh './sbom-tool generate -o bom.json'
+                sh './sbom-tool generate -o bom.json --configuration System.Globalization.Invariant=true'
                 script {
                     def sbom = readFile('bom.json')
                     echo "Generated SBOM:\n$sbom"

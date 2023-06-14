@@ -99,12 +99,14 @@ pipeline {
             steps {
                 sh 'curl -LO https://github.com/anchore/syft/releases/latest/download/syft_linux_amd64'
                 sh 'chmod +x syft_linux_amd64'
-                sh 'sudo mv syft_linux_amd64 /usr/local/bin/syft'
+                script {
+                    echo "pwd"
+                //sh 'sudo mv syft_linux_amd64 /usr/local/bin/syft'
             }
             }
         stage('Create SBOM') {
             steps {
-                sh 'syft -o sbom.json /usr/local/bin/syft'
+                sh 'syft -o sbom.json'
             }
             }
     }

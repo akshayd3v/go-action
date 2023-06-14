@@ -16,8 +16,8 @@ pipeline {
 
         stage('Generate SBOM') {
             steps {
-          
-                sh 'syft -o bom.json'
+                sh '$HOME/bin/syft version'
+                sh '$HOME/bin/syft -o bom.json'
                 script {
                     def sbom = readFile('bom.json')
                     echo "Generated SBOM:\n$sbom"

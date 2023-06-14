@@ -17,7 +17,7 @@ pipeline {
         stage('Generate SBOM') {
             steps {
                 sh '$HOME/bin/syft version'
-                sh '$HOME/bin/syft packages alpine:latest -o cyclonedx-json'
+                sh '$HOME/bin/syft packages --source-name=akshayd3v --source-version=go-action -o cyclonedx-json'
                 script {
                     def sbom = readFile('cyclonedx-json')
                     echo "Generated CycloneDX SBOM:\n$sbom"

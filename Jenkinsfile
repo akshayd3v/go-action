@@ -35,7 +35,7 @@ pipeline {
                     -F "autoCreate=true" \
                     -F "projectName=testJenkins" \
                     -F "projectVersion=1.24" \
-                    -F "bom=@cyclonedx-json"
+                    -F "bom=@$HOME/bin/cyclonedx-json"
                     """
                 }
             }

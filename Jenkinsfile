@@ -22,7 +22,7 @@ pipeline {
         
         stage('Generate SBOM') {
             steps {
-                sh 'export FETCH_LICENSE=true && cdxgen -o bom.json'
+                sh 'export FETCH_LICENSE=true && cdxgen -r -o bom.json'
                 script {
                     def sbom = readFile('bom.json')
                     echo "Generated SBOM:\n$sbom"

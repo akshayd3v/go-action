@@ -21,7 +21,7 @@ pipeline {
         
         stage('Install SBOM tool') {
             steps {
-                sh 'npm install -g @cyclonedx/cdxgen'
+                sh 'npm install -g @cyclonedx/cdxgen@8.6.0'
             }
         }
         

@@ -39,11 +39,11 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'apikey', variable: 'X_API_KEY')]) {
                     sh """
-                    curl -k -X POST "https://dt-api-jenkins-test.staging.cryptosoft.com/api/v1/bom" \
+                    curl -k -X POST "https://dt-api.staging.cryptosoft.com/api/v1/bom" \
                     -H "Content-Type:multipart/form-data" \
-                    -H "X-Api-Key:${X_API_KEY}" \
+                    -H "X-Api-Key:1DMIXAnGtTIeTQDddlHSvpj6d3as174S" \
                     -F "autoCreate=true" \
-                    -F "projectName=Jenkinsgolang" \
+                    -F "projectName=Jenkinsgolangakshay" \
                     -F "projectVersion=1.24" \
                     -F "bom=@bom.json"
                     """

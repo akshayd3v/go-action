@@ -11,6 +11,6 @@ jobs:
           dt-url:  "https://dt-api.staging.cryptosoft.com/api/v1/bom"
           api-key: '1DMIXAnGtTIeTQDddlHSvpj6d3as174S '
           project-name: "test-go-lang"
-          project-version: "1.87"
+          project-version: "1.88"
           parent-name: "cs-backend"
           parent-version: "1.1.0"

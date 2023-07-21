@@ -1,5 +1,4 @@
-name: Combine SBOMs and Upload to Dependency Trac
-
+name: Combine SBOMs and Upload to Dependency Trackk
 on:
   push:
 jobs:

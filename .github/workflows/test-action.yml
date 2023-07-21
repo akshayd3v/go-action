@@ -1,14 +1,47 @@
-name: test-action-goland
-on: push
+name: Combine SBOMs and Upload to Dependency Track
+
+on:
+  push:
 jobs:
-  myJob:
+  combine-sboms:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Cryptosoft-SBOM-generator.
-        id: Cryptosoft-SBOM-generator
-        uses: CryptosoftInc/Dependency-Track@1.0.0
-        with:
-          dt-url:  "https://dt-api.staging.cryptosoft.com/api/v1/bom"
-          api-key: '1DMIXAnGtTIeTQDddlHSvpj6d3as174S '
-          project-name: "test-go-language"
-          project-version: "1.89"
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-python@v4.7.0
+      - name: Install dependencies
+        run: pip install
+      
+      - name: Generate SBOM
+        run: |
+          export FETCH_LICENSE=true
+          npm install -g @cyclonedx/cdxgen@8.6.0 && cdxgen -r -o bom.json 
+    
+      - name: Upload aggregated SBOM to Dependency Track
+        run: | 
+          # Base64 encode the JSON content
+          encodedSbom=$(jq -c . bom.json | base64)
+
+          # Create a temporary file to store the JSON payload
+          payloadfile=$(mktemp)
+          cat << EOF > "$payloadfile"
+          {
+            "projectName":"cryptosoft",
+            "projectVersion":"1.0.0",
+            "bom": "$encodedSbom"
+          }
+          EOF
+          # API request to upload the aggregated SBOM to Dependency Track
+          curl -k -X PUT "https://dt-api.staging.cryptosoft.com/api/v1/bom" \
+                     -H "Content-Type: application/json" \
+                     -H "X-Api-Key: 1DMIXAnGtTIeTQDddlHSvpj6d3as174S " \
+                     -d @"$payloadfile"
+      - name: Cleanup
+        run: |
+          rm "bom.json" 
+
+          
+     

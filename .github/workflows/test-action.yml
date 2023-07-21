@@ -30,7 +30,7 @@ jobs:
           curl -k -X PUT "https://dt-api.staging.cryptosoft.com/api/v1/bom" \
                      -H "Content-Type: application/json" \
                      -H "X-Api-Key: 1DMIXAnGtTIeTQDddlHSvpj6d3as174S " \
-                     -d  '$payload'
+                     -d  "$payload"
       - name: Cleanup
         run: |
           rm "bom.json" 

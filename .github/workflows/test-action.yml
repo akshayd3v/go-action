@@ -28,8 +28,7 @@ jobs:
           payloadfile=$(mktemp)
           cat << EOF > "$payloadfile"
           {
-            "projectName":"cryptosoft",
-            "projectVersion":"1.0.0",
+            "projectName":"58fc3071-c47c-4bcc-8167-b0045ee7f6e2",
             "bom": "$encodedSbom"
           }
           EOF

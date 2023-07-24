@@ -1,39 +1,89 @@
-name: Combine SBOMs and Upload to Dependency Trackk
+name: Combine SBOMs and Upload to Dependency Track
+
 on:
   push:
+    branches:
+      - main
+
 jobs:
   combine-sboms:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - name: Set up Node.js
         uses: actions/setup-go@v4.0.1
+        
       - name: Install dependencies
         run: go mod why
-      
+
       - name: Generate SBOM
         run: |
           export FETCH_LICENSE=true
-          npm install -g @cyclonedx/cdxgen@8.6.0 && cdxgen -r -o bom.json 
-    
-      - name: Upload aggregated SBOM to Dependency Track
-        run: | 
-          # Base64 encode the JSON content
-          encodedSbom=$(jq -c . bom.json | base64)
+          npm install -g @cyclonedx/cdxgen@8.6.0 && cdxgen -r -o bom.json
 
-          # Create a temporary file to store the JSON payload
-          payload="{\"project\":\"58fc3071-c47c-4bcc-8167-b0045ee7f6e2\",\"bom\":\"$encodedSbom\"}" 
+      - name: Retrieve existing SBOM
+        id: get_sbom
+        run: |
+          # Dependency Track API endpoint and API key
+          API_ENDPOINT="https://dt-api.staging.cryptosoft.com/api/v1"
+          API_KEY="1DMIXAnGtTIeTQDddlHSvpj6d3as174S"
+
+          # Project name and version
+          PROJECT_NAME="Test-Multiple_Project"
+          PROJECT_VERSION="1.0.0"
+
+          # API request to retrieve the existing SBOM
+          curl -k -X GET -H "X-Api-Key: $API_KEY" "$API_ENDPOINT/bom/cyclonedx/project/94735c9a-76cc-424f-a110-547a7cc121ba?format=json&variant=withVulnerabilities&download=true" > existing_sbom.json
+
+      - name: Combine SBOMs
+        run: |
+          jq -s 'def deepmerge(a;b):
+            reduce b[] as $item (a;
+              reduce ($item | keys_unsorted[]) as $key (.;
+                $item[$key] as $val | ($val | type) as $type | .[$key] = if ($type == "object") then
+                  deepmerge({}; [if .[$key] == null then {} else .[$key] end, $val])
+                elif ($type == "array") then
+                  (.[$key] + $val | unique)
+                else
+                  $val
+                end)
+              );
+            deepmerge({}; .)' bom.json existing_sbom.json > aggregated_sbom.json
+            
+      
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          # Artifact name
+          name: combined sbom
+          path: ./aggregated_sbom.json
+
+
+      - name: Upload aggregated SBOM to Dependency Track
+        run: |
+          # Dependency Track API endpoint and API key
+          API_ENDPOINT="https://dt-api.staging.cryptosoft.com/api/v1"
+          API_KEY="1DMIXAnGtTIeTQDddlHSvpj6d3as174S"
+
+          # Read the combined JSON content from the file
+          encoded_sbom=$(jq -c . aggregated_sbom.json | base64 | tr -d '\n')
+          payloadfile=$(mktemp)
+          cat << EOF > "$payloadfile"
+          {
+            "project": "94735c9a-76cc-424f-a110-547a7cc121ba",
+            "bom": "$encoded_sbom"
+          }
+          EOF
+
           # API request to upload the aggregated SBOM to Dependency Track
-          curl -k -X PUT "https://dt-api.staging.cryptosoft.com/api/v1/bom" \
-                     -H "Content-Type: application/json" \
-                     -H "X-Api-Key: 1DMIXAnGtTIeTQDddlHSvpj6d3as174S " \
-                     -d  "$payload"
+          curl -k -X PUT "$API_ENDPOINT/bom" \
+            -H "Content-Type: application/json" \
+            -H "X-Api-Key: $API_KEY" \
+            -d @"$payloadfile"
+
       - name: Cleanup
         run: |
-          rm "bom.json" 
-
-          
-     
+          rm "bom.json" "existing_sbom.json" "aggregated_sbom.json"

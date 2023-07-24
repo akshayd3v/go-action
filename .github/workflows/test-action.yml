@@ -2,9 +2,6 @@ name: Combine SBOMs and Upload to Dependency Track
 
 on:
   push:
-    branches:
-      - main
-
 jobs:
   combine-sboms:
     runs-on: ubuntu-latest
